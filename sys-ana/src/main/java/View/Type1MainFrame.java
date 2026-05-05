@@ -3,7 +3,12 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package View;
-
+import Controller.AnalyticsController;
+import Controller.MovieController;
+import Controller.UserController;
+import Model.Movie;
+import Model.User;
+import java.util.List;
 /**
  *
  * @author elifa
@@ -12,13 +17,64 @@ public class Type1MainFrame extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Type1MainFrame.class.getName());
 
-    /**
-     * Creates new form Type1MainFrame
-     */
-    public Type1MainFrame() {
+    private final User currentUser;
+    private final MovieController movieController;
+    private final UserController userController;
+    private final AnalyticsController analyticsController;
+
+    public Type1MainFrame(User user) {
+        this.currentUser = user;
+        this.movieController = new MovieController();
+        this.userController = new UserController();
+        this.analyticsController = new AnalyticsController();
         initComponents();
+        loadMovies();
+        setLocationRelativeTo(null);
+        setTitle("MovieCritics - Welcome, " + user.getUsername());
     }
 
+    private void loadMovies() {
+        List<Movie> movies = movieController.getAllMovies();
+        refreshMovieTable(movies);
+    }
+
+    public void refreshMovieTable(List<Movie> movies) {
+        String[] columns = {"ID", "Title", "Genre", "Year", "Director", "Rating", "Watched", "Restricted"};
+        Object[][] data = new Object[movies.size()][columns.length];
+
+        for (int i = 0; i < movies.size(); i++) {
+            Movie m = movies.get(i);
+            data[i][0] = m.getMovieID();
+            data[i][1] = m.getTitle();
+            data[i][2] = m.getGenre();
+            data[i][3] = m.getReleaseDate() != null ? m.getReleaseDate().getYear() : "";
+            data[i][4] = m.getDirector() != null ? m.getDirector() : "";
+            data[i][5] = m.getRating();
+            data[i][6] = m.isWatched() ? "Yes" : "No";
+            data[i][7] = m.isParentalRestriction() ? "Yes" : "No";
+        }
+
+        tblMovies.setModel(new javax.swing.table.DefaultTableModel(data, columns) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        });
+    }
+
+    private Movie getSelectedMovie() {
+        int row = tblMovies.getSelectedRow();
+        if (row == -1) {
+            showMessage("Please select a movie first.");
+            return null;
+        }
+        int movieId = (int) tblMovies.getModel().getValueAt(row, 0);
+        return movieController.getMovieById(movieId);
+    }
+
+    public void showMessage(String message) {
+        javax.swing.JOptionPane.showMessageDialog(this, message);
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -28,22 +84,332 @@ public class Type1MainFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
+        jLabel1 = new javax.swing.JLabel();
+        txtSearch = new javax.swing.JTextField();
+        jLabel2 = new javax.swing.JLabel();
+        txtYear = new javax.swing.JTextField();
+        cmbGenre = new javax.swing.JComboBox<>();
+        btnAddMovie = new javax.swing.JButton();
+        btnDeleteMovie = new javax.swing.JButton();
+        btnEditMovie = new javax.swing.JButton();
+        btnSetRestriction = new javax.swing.JButton();
+        btnModerate = new javax.swing.JButton();
+        btnAnalytics = new javax.swing.JButton();
+        btnManageUsers = new javax.swing.JButton();
+        btnViewDetails = new javax.swing.JButton();
+        btnLogout = new javax.swing.JButton();
+        jLabel3 = new javax.swing.JLabel();
+        btnSearch = new javax.swing.JButton();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane1.setViewportView(jTable1);
+
+        jLabel1.setText("Search:");
+
+        txtSearch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtSearchActionPerformed(evt);
+            }
+        });
+
+        jLabel2.setText("Year:");
+
+        cmbGenre.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All", "Action", "Comedy", "Drama", "Horror", "Sci-Fi", "Thriller" }));
+        cmbGenre.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cmbGenreActionPerformed(evt);
+            }
+        });
+
+        btnAddMovie.setText("Add Movie");
+        btnAddMovie.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddMovieActionPerformed(evt);
+            }
+        });
+
+        btnDeleteMovie.setText("Delete Movie");
+        btnDeleteMovie.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteMovieActionPerformed(evt);
+            }
+        });
+
+        btnEditMovie.setText("Edit Movie");
+        btnEditMovie.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEditMovieActionPerformed(evt);
+            }
+        });
+
+        btnSetRestriction.setText("Toggle Restriction");
+        btnSetRestriction.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSetRestrictionActionPerformed(evt);
+            }
+        });
+
+        btnModerate.setText("Remove Comment");
+        btnModerate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnModerateActionPerformed(evt);
+            }
+        });
+
+        btnAnalytics.setText("Family Analytics");
+        btnAnalytics.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAnalyticsActionPerformed(evt);
+            }
+        });
+
+        btnManageUsers.setText("Manage Users");
+        btnManageUsers.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnManageUsersActionPerformed(evt);
+            }
+        });
+
+        btnViewDetails.setText("View Details");
+        btnViewDetails.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnViewDetailsActionPerformed(evt);
+            }
+        });
+
+        btnLogout.setText("Logout");
+        btnLogout.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLogoutActionPerformed(evt);
+            }
+        });
+
+        jLabel3.setText("Genre");
+
+        btnSearch.setText("Search ");
+        btnSearch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSearchActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addGap(9, 9, 9)
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(txtSearch))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(btnLogout, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnViewDetails, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnManageUsers, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnDeleteMovie, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnAddMovie, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnModerate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnSetRestriction, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnEditMovie, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnAnalytics, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 240, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap())
+                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel2)
+                        .addGap(18, 18, 18)
+                        .addComponent(txtYear, javax.swing.GroupLayout.DEFAULT_SIZE, 87, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel3)
+                        .addGap(18, 18, 18)
+                        .addComponent(cmbGenre, 0, 66, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnSearch)
+                        .addGap(19, 19, 19))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2)
+                    .addComponent(txtYear, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(cmbGenre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel3)
+                    .addComponent(btnSearch))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(btnAddMovie)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnDeleteMovie)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnEditMovie)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnSetRestriction)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnModerate)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnAnalytics)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnManageUsers))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(35, 35, 35)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 183, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnViewDetails)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnLogout)
+                .addContainerGap(184, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void cmbGenreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbGenreActionPerformed
+        
+    }//GEN-LAST:event_cmbGenreActionPerformed
+
+    private void btnAddMovieActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddMovieActionPerformed
+        AddEditMovieDialog dialog = new AddEditMovieDialog(this, true, null, movieController);
+        dialog.setVisible(true);
+        loadMovies();
+    }//GEN-LAST:event_btnAddMovieActionPerformed
+
+    private void btnDeleteMovieActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteMovieActionPerformed
+        Movie selected = getSelectedMovie();
+        if (selected == null) return;
+
+        int confirm = javax.swing.JOptionPane.showConfirmDialog(
+            this, "Are you sure you want to delete \"" + selected.getTitle() + "\"?",
+            "Confirm Delete", javax.swing.JOptionPane.YES_NO_OPTION
+        );
+
+        if (confirm == javax.swing.JOptionPane.YES_OPTION) {
+            boolean success = movieController.removeMovie(selected.getMovieID());
+            showMessage(success ? "Movie deleted." : "Failed to delete movie.");
+            loadMovies();
+        }
+    }//GEN-LAST:event_btnDeleteMovieActionPerformed
+
+    private void btnEditMovieActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditMovieActionPerformed
+        Movie selected = getSelectedMovie();
+        if (selected == null) return;
+        AddEditMovieDialog dialog = new AddEditMovieDialog(this, true, selected, movieController);
+        dialog.setVisible(true);
+        loadMovies();
+    }//GEN-LAST:event_btnEditMovieActionPerformed
+
+    private void btnSetRestrictionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSetRestrictionActionPerformed
+        Movie selected = getSelectedMovie();
+        if (selected == null) return;
+        boolean newValue = !selected.isParentalRestriction();
+        boolean success = movieController.setParentalRestriction(selected.getMovieID(), newValue);
+        showMessage(success ? "Parental restriction updated." : "Failed to update.");
+        loadMovies();
+    }//GEN-LAST:event_btnSetRestrictionActionPerformed
+
+    private void btnModerateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModerateActionPerformed
+        Movie selected = getSelectedMovie();
+        if (selected == null) return;
+        int confirm = javax.swing.JOptionPane.showConfirmDialog(
+            this, "Delete comment for \"" + selected.getTitle() + "\"?",
+            "Moderate Content", javax.swing.JOptionPane.YES_NO_OPTION
+        );
+        if (confirm == javax.swing.JOptionPane.YES_OPTION) {
+            boolean success = movieController.moderateComment(selected.getMovieID());
+            showMessage(success ? "Comment removed." : "Failed to remove comment.");
+            loadMovies();
+        }
+    }//GEN-LAST:event_btnModerateActionPerformed
+
+    private void btnAnalyticsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAnalyticsActionPerformed
+        List<Movie> mostWatched = analyticsController.getMostWatchedMovies();
+        java.util.Map<Movie, Double> avgRatings = analyticsController.getAverageRatings();
+        java.util.Map<User, Integer> progress = analyticsController.getWatchProgressPerUser();
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("=== Most Watched Movies ===\n");
+        for (Movie m : mostWatched) {
+            sb.append("- ").append(m.getTitle()).append("\n");
+        }
+        sb.append("\n=== Average Ratings ===\n");
+        avgRatings.forEach((m, r) -> sb.append("- ").append(m.getTitle()).append(": ").append(r).append("\n"));
+        sb.append("\n=== Watch Progress Per User ===\n");
+        progress.forEach((u, count) -> sb.append("- ").append(u.getUsername()).append(": ").append(count).append(" movies\n"));
+
+        javax.swing.JTextArea textArea = new javax.swing.JTextArea(sb.toString());
+        textArea.setEditable(false);
+        javax.swing.JOptionPane.showMessageDialog(this, new javax.swing.JScrollPane(textArea), "Family Analytics", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+    }//GEN-LAST:event_btnAnalyticsActionPerformed
+
+    private void btnManageUsersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnManageUsersActionPerformed
+        UserManagementDialog dialog = new UserManagementDialog(this, true, userController);
+        dialog.setVisible(true);
+    }//GEN-LAST:event_btnManageUsersActionPerformed
+
+    private void btnViewDetailsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnViewDetailsActionPerformed
+        Movie selected = getSelectedMovie();
+        if (selected == null) return;
+        MovieDetailDialog dialog = new MovieDetailDialog(this, true, selected, userController);
+        dialog.setVisible(true);
+    }//GEN-LAST:event_btnViewDetailsActionPerformed
+
+    private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
+        int confirm = javax.swing.JOptionPane.showConfirmDialog(
+            this, "Are you sure you want to logout?",
+            "Logout", javax.swing.JOptionPane.YES_NO_OPTION
+        );
+        if (confirm == javax.swing.JOptionPane.YES_OPTION) {
+            new LoginFrame().setVisible(true);
+            this.dispose();
+        }
+    }//GEN-LAST:event_btnLogoutActionPerformed
+
+    private void txtSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchActionPerformed
+        String keyword = txtSearch.getText().trim();
+        String genre = cmbGenre.getSelectedItem().toString();
+        int year = 0;
+        try {
+            String yearStr = txtYear.getText().trim();
+            if (!yearStr.isEmpty()) year = Integer.parseInt(yearStr);
+        } catch (NumberFormatException e) {
+            showMessage("Please enter a valid year.");
+            return;
+        }
+        List<Movie> results = movieController.searchMovies(keyword, genre, year);
+        refreshMovieTable(results);
+    }//GEN-LAST:event_txtSearchActionPerformed
+
+    private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
+       txtSearchActionPerformed(evt);
+    }//GEN-LAST:event_btnSearchActionPerformed
+
+    
+    
     /**
      * @param args the command line arguments
      */
@@ -70,5 +436,23 @@ public class Type1MainFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAddMovie;
+    private javax.swing.JButton btnAnalytics;
+    private javax.swing.JButton btnDeleteMovie;
+    private javax.swing.JButton btnEditMovie;
+    private javax.swing.JButton btnLogout;
+    private javax.swing.JButton btnManageUsers;
+    private javax.swing.JButton btnModerate;
+    private javax.swing.JButton btnSearch;
+    private javax.swing.JButton btnSetRestriction;
+    private javax.swing.JButton btnViewDetails;
+    private javax.swing.JComboBox<String> cmbGenre;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable jTable1;
+    private javax.swing.JTextField txtSearch;
+    private javax.swing.JTextField txtYear;
     // End of variables declaration//GEN-END:variables
 }
